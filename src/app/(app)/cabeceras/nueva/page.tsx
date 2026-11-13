@@ -8,14 +8,14 @@ export default async function NuevaCabeceraPage() {
   const perfil = await requirePerfil();
   const supabase = await createClient();
   const [{ data: cls }, { data: sups }, { data: vends }] = await Promise.all([
-    supabase.from("clientes").select("nombre, sucursales(nombre)").eq("activo", true).order("nombre"),
+    supabase.from("clientes").select("nombre, compra_directa, sucursales(nombre)").eq("activo", true).order("nombre"),
     supabase.from("perfiles").select("id,nombre").eq("rol", "supervisor").eq("activo", true).order("nombre"),
     perfil.rol === "admin"
       ? supabase.from("perfiles").select("id,nombre").eq("activo", true).order("nombre")
       : Promise.resolve({ data: null }),
   ]);
-  const clientes = (cls ?? []).map((c: { nombre: string; sucursales: { nombre: string }[] }) => ({
-    nombre: c.nombre, sucursales: c.sucursales.map((s) => s.nombre),
+  const clientes = (cls ?? []).map((c: { nombre: string; compra_directa: boolean; sucursales: { nombre: string }[] }) => ({
+    nombre: c.nombre, compra_directa: c.compra_directa, sucursales: c.sucursales.map((s) => s.nombre),
   }));
   return (
     <div className="mx-auto max-w-3xl">

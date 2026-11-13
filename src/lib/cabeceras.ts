@@ -10,5 +10,8 @@ export async function listarCabeceras(): Promise<FilaCabecera[]> {
     .order("created_at", { ascending: false })
     .limit(5000);
   if (error) throw new Error(error.message);
-  return (data ?? []) as FilaCabecera[];
+  const filas = (data ?? []) as FilaCabecera[];
+  const { data: cls } = await supabase.from("clientes").select("id, compra_directa");
+  const directa = new Map((cls ?? []).map((c: { id: string; compra_directa: boolean }) => [c.id, c.compra_directa]));
+  return filas.map((f) => ({ ...f, compra_directa: directa.get(f.cliente_id) ?? false }));
 }

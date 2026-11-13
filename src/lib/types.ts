@@ -11,7 +11,7 @@ export interface Perfil {
 
 export interface FilaCabecera {
   cabecera_id: string; codigo: string; estado: Estado;
-  cliente_id: string; cliente: string; sucursal_id: string; sucursal: string; direccion: string | null;
+  cliente_id: string; cliente: string; compra_directa?: boolean; sucursal_id: string; sucursal: string; direccion: string | null;
   vendedor_id: string; vendedor: string; supervisor_id: string | null; supervisor: string | null;
   marcas: string[] | null; es_mix: boolean;
   costo: number; moneda: "UYU" | "USD"; costo_uyu: number | null;

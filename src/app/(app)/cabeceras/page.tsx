@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requirePerfil } from "@/lib/auth";
 import { listarCabeceras } from "@/lib/cabeceras";
-import { ClasifBadge, EstadoBadge, Empty, PageHeader } from "@/components/ui";
+import { ClasifBadge, DirectaBadge, EstadoBadge, Empty, PageHeader } from "@/components/ui";
 import { ESTADOS, MARCAS_SIMPLES } from "@/lib/types";
 import { fecha, money, pct } from "@/lib/format";
 
@@ -47,7 +47,7 @@ export default async function CabecerasPage({ searchParams }: { searchParams: Pr
               {filas.map((c) => (
                 <tr key={c.cabecera_id} className="hover:bg-slate-50">
                   <td className="td font-medium"><Link className="text-brand-600 hover:underline" href={`/cabeceras/${c.cabecera_id}`}>{c.codigo}</Link></td>
-                  <td className="td">{c.cliente}<div className="text-xs text-slate-500">{c.sucursal}</div></td>
+                  <td className="td">{c.cliente}<DirectaBadge directa={c.compra_directa} /><div className="text-xs text-slate-500">{c.sucursal}</div></td>
                   <td className="td">{(c.marcas ?? []).join(" + ")}</td>
                   <td className="td">{c.vendedor}</td>
                   <td className="td whitespace-nowrap">{money(c.costo, c.moneda)}</td>

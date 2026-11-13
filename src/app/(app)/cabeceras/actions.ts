@@ -13,7 +13,7 @@ const schema = z
   .object({
     cliente: z.string().trim().min(2, "Indique el cliente"),
     sucursal: z.string().trim().min(1, "Indique la sucursal"),
-    direccion: z.string().trim().min(3, "Indique la dirección o ubicación"),
+    direccion: z.string().trim().optional(),
     vendedor_id: z.string().uuid("Usuario responsable inválido"),
     supervisor_id: z.string().uuid().optional().or(z.literal("")),
     marca: z.enum(["Ades", "Fortylex", "Ayudín", "Kenvue", "Mix"], { message: "Seleccione la marca o línea" }),
@@ -21,8 +21,6 @@ const schema = z
     fecha_inicio: z.string().min(1, "Indique la fecha de inicio"),
     fecha_fin: z.string().min(1, "Indique la fecha de finalización"),
     costo: z.coerce.number({ message: "El costo es obligatorio" }).positive("El costo debe ser mayor a cero"),
-    moneda: z.enum(["UYU", "USD"], { message: "Seleccione la moneda" }),
-    contacto: z.string().trim().optional(),
     observaciones: z.string().trim().optional(),
   })
   .refine((v) => v.fecha_fin > v.fecha_inicio, { path: ["fecha_fin"], message: "La fecha de fin debe ser posterior a la de inicio" })
@@ -36,8 +34,7 @@ export async function crearCabecera(_: FormState, fd: FormData): Promise<FormSta
     supervisor_id: fd.get("supervisor_id") ?? "",
     marca: fd.get("marca"), marcas_mix: fd.getAll("marcas_mix").map(String),
     fecha_inicio: fd.get("fecha_inicio"), fecha_fin: fd.get("fecha_fin"),
-    costo: fd.get("costo"), moneda: fd.get("moneda"),
-    contacto: fd.get("contacto") ?? "", observaciones: fd.get("observaciones") ?? "",
+    costo: fd.get("costo"), observaciones: fd.get("observaciones") ?? "",
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const v = parsed.data;
@@ -49,7 +46,7 @@ export async function crearCabecera(_: FormState, fd: FormData): Promise<FormSta
     const { data } = await supabase.from("clientes").select("id").ilike("nombre", esc(v.cliente)).maybeSingle();
     clienteId = data?.id;
     if (!clienteId) {
-      const ins = await supabase.from("clientes").insert({ nombre: v.cliente, created_by: perfil.id }).select("id").single();
+      const ins = await supabase.from("clientes").insert({ nombre: v.cliente, compra_directa: fd.get("compra_directa") === "on", created_by: perfil.id }).select("id").single();
       if (ins.error) {
         const again = await supabase.from("clientes").select("id").ilike("nombre", esc(v.cliente)).maybeSingle();
         clienteId = again.data?.id;
@@ -64,7 +61,7 @@ export async function crearCabecera(_: FormState, fd: FormData): Promise<FormSta
     sucursalId = data?.id;
     if (!sucursalId) {
       const ins = await supabase.from("sucursales")
-        .insert({ cliente_id: clienteId, nombre: v.sucursal, direccion: v.direccion, contacto: v.contacto || null, created_by: perfil.id })
+        .insert({ cliente_id: clienteId, nombre: v.sucursal, direccion: v.direccion || null, created_by: perfil.id })
         .select("id").single();
       if (ins.error) return { error: `No se pudo registrar la sucursal: ${ins.error.message}` };
       sucursalId = ins.data.id;
@@ -77,8 +74,8 @@ export async function crearCabecera(_: FormState, fd: FormData): Promise<FormSta
 
   const ins = await supabase.from("cabeceras").insert({
     sucursal_id: sucursalId, vendedor_id: v.vendedor_id, supervisor_id: v.supervisor_id || null,
-    fecha_inicio: v.fecha_inicio, fecha_fin: v.fecha_fin, costo: v.costo, moneda: v.moneda,
-    contacto_local: v.contacto || null, observaciones: v.observaciones || null,
+    fecha_inicio: v.fecha_inicio, fecha_fin: v.fecha_fin, costo: v.costo, moneda: "UYU", // el sistema trabaja solo en pesos uruguayos, sin impuestos
+    observaciones: v.observaciones || null,
   }).select("id").single();
   if (ins.error) return { error: `No se pudo guardar la cabecera: ${ins.error.message}` };
   const id = ins.data.id as string;
@@ -134,9 +131,8 @@ export async function actualizarCosto(_: FormState, fd: FormData): Promise<FormS
   await requirePerfil(["admin"]);
   const costo = Number(fd.get("costo"));
   if (!(costo > 0)) return { error: "El costo debe ser mayor a cero" };
-  const moneda = fd.get("moneda") === "USD" ? "USD" : "UYU";
   const supabase = await createClient();
-  const { error } = await supabase.from("cabeceras").update({ costo, moneda }).eq("id", String(fd.get("id")));
+  const { error } = await supabase.from("cabeceras").update({ costo, moneda: "UYU" }).eq("id", String(fd.get("id")));
   if (error) return { error: error.message };
   revalidatePath(`/cabeceras/${fd.get("id")}`);
   return { ok: "Costo actualizado (queda en auditoría)" };
@@ -150,4 +146,15 @@ export async function reasignarSupervisor(_: FormState, fd: FormData): Promise<F
   if (error) return { error: error.message };
   revalidatePath(`/cabeceras/${fd.get("id")}`);
   return { ok: "Supervisor actualizado" };
+}
+
+export async function actualizarCompraDirecta(_: FormState, fd: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
+  const supabase = await createClient();
+  const { error } = await supabase.from("clientes")
+    .update({ compra_directa: fd.get("compra_directa") === "on" }).eq("id", String(fd.get("cliente_id")));
+  if (error) return { error: error.message };
+  revalidatePath(`/cabeceras/${fd.get("id")}`);
+  revalidatePath("/cabeceras");
+  return { ok: "Dato del cliente actualizado" };
 }

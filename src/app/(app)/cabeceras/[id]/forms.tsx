@@ -1,6 +1,6 @@
 "use client";
 import { useActionState, useState } from "react";
-import { agregarComentario, actualizarCosto, cambiarEstado, reasignarSupervisor, type FormState } from "../actions";
+import { agregarComentario, actualizarCosto, cambiarEstado, reasignarSupervisor, type FormState, actualizarCompraDirecta } from "../actions";
 
 function Msg({ s }: { s: FormState }) {
   if (!s) return null;
@@ -60,15 +60,13 @@ export function ComentarioForm({ id }: { id: string }) {
   );
 }
 
-export function CostoForm({ id, costo, moneda }: { id: string; costo: number; moneda: string }) {
+export function CostoForm({ id, costo }: { id: string; costo: number }) {
   const [s, action, pending] = useActionState<FormState, FormData>(actualizarCosto, null);
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="id" value={id} />
-      <div className="flex gap-2">
-        <input name="costo" type="number" step="0.01" min="0.01" defaultValue={costo} required className="input" />
-        <select name="moneda" defaultValue={moneda} className="input w-28"><option>UYU</option><option>USD</option></select>
-      </div>
+      <input name="costo" type="number" step="0.01" min="0.01" defaultValue={costo} required className="input" />
+      <p className="text-xs text-slate-500">En pesos uruguayos (UYU), SIN IMPUESTOS.</p>
       <Msg s={s} />
       <button className="btn-ghost" disabled={pending}>Actualizar costo</button>
     </form>
@@ -86,6 +84,19 @@ export function SupervisorForm({ id, actual, supervisores }: { id: string; actua
       </select>
       <Msg s={s} />
       <button className="btn-ghost" disabled={pending}>Reasignar supervisor</button>
+    </form>
+  );
+}
+
+export function CompraDirectaForm({ id, clienteId, directa }: { id: string; clienteId: string; directa: boolean }) {
+  const [s, action, pending] = useActionState<FormState, FormData>(actualizarCompraDirecta, null);
+  return (
+    <form action={action} className="space-y-3">
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="cliente_id" value={clienteId} />
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="compra_directa" defaultChecked={directa} /> El cliente compra de forma directa</label>
+      <Msg s={s} />
+      <button className="btn-ghost" disabled={pending}>Guardar</button>
     </form>
   );
 }

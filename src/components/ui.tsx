@@ -59,3 +59,9 @@ export function Flash({ ok, error }: { ok?: string; error?: string }) {
 export const Empty = ({ children }: { children: React.ReactNode }) => (
   <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">{children}</div>
 );
+
+/** Insignia informativa: el cliente compra de forma directa. */
+export function DirectaBadge({ directa }: { directa?: boolean }) {
+  if (!directa) return null;
+  return <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-medium text-brand-700">Compra directa</span>;
+}

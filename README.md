@@ -41,7 +41,7 @@ Aplicación web (Next.js + React + TypeScript + Tailwind) sobre Supabase (Postgr
 
 - **Ratio de inversión** = costo ÷ venta mensual promedio × 100 (vista `v_cabecera_rentabilidad`). No es un ROI.
   Se informa además el **ratio mensualizado** (costo ÷ meses de vigencia ÷ venta × 100).
-- **Moneda**: el costo puede estar en UYU o USD; se convierte con el último tipo de cambio cargado.
+- **Moneda**: el costo se registra solo en pesos uruguayos (UYU) y SIN IMPUESTOS (IVA no incluido).
 - **Ventas sin duplicar**: la venta de la sucursal se reparte entre sus cabeceras vigentes
   (por marca si hay venta cargada por marca; si no, venta general en partes iguales).
 - **Umbrales** (rentable / seguimiento / no rentable) editables, generales o por marca, con historial.

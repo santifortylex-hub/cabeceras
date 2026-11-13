@@ -3,7 +3,7 @@ import { useActionState, useState } from "react";
 import { crearCabecera, type FormState } from "../actions";
 
 interface Props {
-  clientes: { nombre: string; sucursales: string[] }[];
+  clientes: { nombre: string; compra_directa: boolean; sucursales: string[] }[];
   supervisores: { id: string; nombre: string }[];
   vendedores: { id: string; nombre: string }[] | null; // solo admin
   miSupervisor: string | null;
@@ -14,7 +14,8 @@ export default function NuevaCabeceraForm({ clientes, supervisores, vendedores, 
   const [state, action, pending] = useActionState<FormState, FormData>(crearCabecera, null);
   const [cliente, setCliente] = useState("");
   const [marca, setMarca] = useState("");
-  const sucursales = clientes.find((c) => c.nombre.toLowerCase() === cliente.trim().toLowerCase())?.sucursales ?? [];
+  const existente = clientes.find((c) => c.nombre.toLowerCase() === cliente.trim().toLowerCase());
+  const sucursales = existente?.sucursales ?? [];
 
   return (
     <form action={action} className="space-y-6">
@@ -27,6 +28,17 @@ export default function NuevaCabeceraForm({ clientes, supervisores, vendedores, 
           <input name="cliente" list="lista-clientes" required className="input" value={cliente}
             onChange={(e) => setCliente(e.target.value)} placeholder="Escriba o elija un cliente" />
           <datalist id="lista-clientes">{clientes.map((c) => <option key={c.nombre} value={c.nombre} />)}</datalist>
+          {existente ? (
+            <p className="mt-2 text-sm text-slate-600">
+              Compra directa: <b className={existente.compra_directa ? "text-brand-700" : ""}>{existente.compra_directa ? "Sí" : "No"}</b>
+              <span className="text-xs text-slate-400"> (dato del cliente)</span>
+            </p>
+          ) : cliente.trim().length >= 2 ? (
+            <label className="mt-2 flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" name="compra_directa" /> Compra directa
+              <span className="text-xs text-slate-400">(cliente nuevo: se guardará con este dato)</span>
+            </label>
+          ) : null}
         </div>
         <div>
           <label className="label">Sucursal / identificación *</label>
@@ -34,12 +46,8 @@ export default function NuevaCabeceraForm({ clientes, supervisores, vendedores, 
           <datalist id="lista-sucursales">{sucursales.map((s) => <option key={s} value={s} />)}</datalist>
         </div>
         <div className="md:col-span-2">
-          <label className="label">Dirección o ubicación *</label>
-          <input name="direccion" required className="input" />
-        </div>
-        <div>
-          <label className="label">Contacto del local</label>
-          <input name="contacto" className="input" />
+          <label className="label">Dirección o ubicación (opcional)</label>
+          <input name="direccion" className="input" />
         </div>
       </section>
 
@@ -96,16 +104,9 @@ export default function NuevaCabeceraForm({ clientes, supervisores, vendedores, 
           <input type="date" name="fecha_fin" required className="input" />
         </div>
         <div>
-          <label className="label">Costo de la cabecera *</label>
+          <label className="label">Costo de la cabecera en pesos uruguayos (UYU), SIN IMPUESTOS *</label>
           <input type="number" name="costo" required min="0.01" step="0.01" className="input" />
-        </div>
-        <div>
-          <label className="label">Moneda *</label>
-          <select name="moneda" required className="input" defaultValue="">
-            <option value="" disabled>Seleccione…</option>
-            <option value="UYU">UYU – Pesos uruguayos</option>
-            <option value="USD">USD – Dólares</option>
-          </select>
+          <p className="mt-1 text-xs font-medium text-brand-700">Ingrese el importe SIN IMPUESTOS (IVA no incluido), en pesos uruguayos.</p>
         </div>
       </section>
 

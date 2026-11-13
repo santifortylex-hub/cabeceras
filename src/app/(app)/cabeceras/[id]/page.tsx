@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ClasifBadge, EstadoBadge, PageHeader } from "@/components/ui";
 import { estadoLabel, TIPO_ALERTA_LABEL, type FilaCabecera } from "@/lib/types";
 import { fecha, fechaHora, money, pct, periodo } from "@/lib/format";
-import { CambiarEstadoForm, ComentarioForm, CostoForm, SupervisorForm } from "./forms";
+import { CambiarEstadoForm, ComentarioForm, CompraDirectaForm, CostoForm, SupervisorForm } from "./forms";
 
 const Dato = ({ k, v }: { k: string; v: React.ReactNode }) => (
   <div><dt className="label">{k}</dt><dd className="text-sm text-slate-800">{v ?? "—"}</dd></div>
@@ -20,15 +20,17 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
   if (!row) notFound();
   const c = row as FilaCabecera;
 
-  const [hist, coms, alertas, baja, trans, sups, det] = await Promise.all([
+  const [hist, coms, alertas, baja, trans, sups, det, cli] = await Promise.all([
     supabase.from("cabecera_estados_historial").select("*, usuario:perfiles(nombre)").eq("cabecera_id", id).order("created_at", { ascending: false }),
     supabase.from("cabecera_comentarios").select("*, autor:perfiles(nombre)").eq("cabecera_id", id).order("created_at", { ascending: false }),
     supabase.from("alertas").select("*").eq("cabecera_id", id).order("generada_en", { ascending: false }),
     supabase.from("cabecera_bajas").select("*, usuario:perfiles(nombre)").eq("cabecera_id", id).maybeSingle(),
     supabase.from("transiciones_estado").select("hasta").eq("desde", c.estado),
     supabase.from("perfiles").select("id,nombre").eq("rol", "supervisor").eq("activo", true).order("nombre"),
-    supabase.from("cabeceras").select("observaciones, contacto_local").eq("id", id).single(),
+    supabase.from("cabeceras").select("observaciones").eq("id", id).single(),
+    supabase.from("clientes").select("compra_directa").eq("id", c.cliente_id).maybeSingle(),
   ]);
+  const compraDirecta = cli.data?.compra_directa ?? false;
 
   let fotoUrl: string | null = null;
   if (c.foto_path) {
@@ -60,9 +62,9 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
               </div>
               <dl className="grid grid-cols-2 gap-4">
                 <Dato k="Marcas" v={(c.marcas ?? []).join(" + ") + (c.es_mix ? " (Mix)" : "")} />
+                <Dato k="Compra directa" v={compraDirecta ? "Sí" : "No"} />
                 <Dato k="Usuario responsable" v={c.vendedor} />
                 <Dato k="Supervisor" v={c.supervisor} />
-                <Dato k="Contacto del local" v={det.data?.contacto_local} />
                 <Dato k="Inicio" v={fecha(c.fecha_inicio)} />
                 <Dato k="Finalización" v={`${fecha(c.fecha_fin)} (${c.dias_para_vencer >= 0 ? `en ${c.dias_para_vencer} días` : `vencida hace ${-c.dias_para_vencer} días`})`} />
               </dl>
@@ -73,7 +75,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           <section className="card">
             <h2 className="mb-4 text-sm font-semibold text-slate-700">Inversión y rentabilidad</h2>
             <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <Dato k="Costo de inversión" v={money(c.costo, c.moneda)} />
+              <Dato k="Costo de inversión (sin impuestos)" v={money(c.costo, c.moneda)} />
               <Dato k="Costo en UYU" v={money(c.costo_uyu)} />
               <Dato k="Venta mensual promedio asignada" v={money(c.venta_asignada)} />
               <Dato k="Último período de ventas" v={periodo(c.ultimo_periodo)} />
@@ -162,8 +164,12 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           {perfil.rol === "admin" && (
             <>
               <section className="card">
-                <h2 className="mb-3 text-sm font-semibold text-slate-700">Costo (solo administrador)</h2>
-                <CostoForm id={id} costo={c.costo} moneda={c.moneda} />
+                <h2 className="mb-3 text-sm font-semibold text-slate-700">Costo, sin impuestos (solo administrador)</h2>
+                <CostoForm id={id} costo={c.costo} />
+              </section>
+              <section className="card">
+                <h2 className="mb-3 text-sm font-semibold text-slate-700">Cliente: compra directa</h2>
+                <CompraDirectaForm id={id} clienteId={c.cliente_id} directa={compraDirecta} />
               </section>
               <section className="card">
                 <h2 className="mb-3 text-sm font-semibold text-slate-700">Supervisor</h2>
