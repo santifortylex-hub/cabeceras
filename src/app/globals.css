@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef5fb;
+  --color-brand-100: #d6e6f5;
+  --color-brand-500: #1f6fb2;
+  --color-brand-600: #185b93;
+  --color-brand-700: #134a78;
+  --color-brand-900: #0b2b47;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body { @apply bg-slate-50 text-slate-800 antialiased; }
+.input { @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
+.label { @apply mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500; }
+.btn { @apply inline-flex items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-50; }
+.btn-ghost { @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50; }
+.btn-danger { @apply inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700; }
+.card { @apply rounded-lg border border-slate-200 bg-white p-5 shadow-sm; }
+.th { @apply whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500; }
+.td { @apply px-3 py-2.5 text-sm; }
