@@ -6,7 +6,7 @@ export interface ChartData {
   porMarca: Pt[]; porSupervisor: Pt[]; porUsuario: Pt[]; porEstado: Pt[]; inversionLinea: Pt[];
   evolucion: { mes: string; activas: number; bajas: number }[]; ratios: Pt[];
 }
-const COLORS = ["#1f6fb2", "#0e9f8e", "#e0a21b", "#8b5cf6", "#e5484d", "#64748b", "#16a34a", "#f97316"];
+const COLORS = ["#c0392b", "#2f4858", "#e0a21b", "#0e9f8e", "#8b5cf6", "#64748b", "#16a34a", "#f97316"];
 const nf = new Intl.NumberFormat("es-UY", { maximumFractionDigits: 0 });
 
 function Card({ title, children, empty }: { title: string; children: React.ReactNode; empty?: boolean }) {
@@ -59,8 +59,8 @@ export default function Charts({ d }: { d: ChartData }) {
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="mes" fontSize={11} /><YAxis allowDecimals={false} fontSize={11} />
               <Tooltip /><Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="activas" name="Activas" stroke="#1f6fb2" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="bajas" name="Dadas de baja" stroke="#e5484d" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="activas" name="Activas" stroke="#c0392b" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="bajas" name="Dadas de baja" stroke="#2f4858" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

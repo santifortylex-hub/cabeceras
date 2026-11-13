@@ -1,17 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eef5fb;
-  --color-brand-100: #d6e6f5;
-  --color-brand-500: #1f6fb2;
-  --color-brand-600: #185b93;
-  --color-brand-700: #134a78;
-  --color-brand-900: #0b2b47;
+  /* PALETA FORTYLEX (rojo y granate). Para cambiar la identidad visual, editar solo estos códigos. */
+  --color-brand-50: #fdf1ef;
+  --color-brand-100: #f8d9d5;
+  --color-brand-200: #e6c9c5;
+  --color-brand-500: #e74c3c;
+  --color-brand-600: #c0392b;
+  --color-brand-700: #9e2f23;
+  --color-brand-900: #1f0b0b;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body { @apply bg-slate-50 text-slate-800 antialiased; }
-.input { @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
+.bg-login { background: linear-gradient(135deg, #1a0a0a 0%, #220d0d 55%, #380e0e 100%); }
+.input { @apply w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
 .label { @apply mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500; }
 .btn { @apply inline-flex items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-50; }
 .btn-ghost { @apply inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50; }

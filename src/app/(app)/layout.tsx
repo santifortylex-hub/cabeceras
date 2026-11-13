@@ -3,6 +3,7 @@ import { requirePerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "../login/actions";
 import type { Rol } from "@/lib/types";
+import { Logo } from "@/components/logo";
 
 const NAV: { href: string; label: string; roles: Rol[] }[] = [
   { href: "/dashboard", label: "Dashboard", roles: ["admin", "supervisor", "vendedor"] },
@@ -29,8 +30,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="bg-brand-900 text-slate-200 md:sticky md:top-0 md:h-screen md:w-60 md:shrink-0">
         <div className="flex items-center justify-between px-5 py-4 md:block">
           <div>
-            <div className="text-lg font-bold tracking-tight text-white">FORTYLEX</div>
-            <div className="text-xs text-slate-400">Cabeceras comerciales</div>
+            <Logo oscuro size={32} />
+            <div className="mt-1 text-xs text-slate-400">Cabeceras comerciales</div>
           </div>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:block md:space-y-1 md:overflow-visible">
